@@ -1,0 +1,25 @@
+dist_a_mean=[3;1];
+dist_a_sigma=[1 2;2 5];
+dist_b_mean=[1;3];
+instance_a=mvnrnd(dist_a_mean,dist_a_sigma,500);
+instance_b=mvnrnd(dist_b_mean,dist_a_sigma,500);
+combined_d=cat(1,instance_a,instance_b);
+instance_a_mean=mean(instance_a,1);
+instance_b_mean=mean(instance_b,1);
+w_m_a=instance_a-instance_a_mean;
+w_m_b=instance_b-instance_b_mean;
+S_w_a=w_m_a'*w_m_a;
+S_w_b=w_m_b'*w_m_b;
+S_w=S_w_a+S_w_b;
+[U,S,V]=svd(S_w);
+w=(V*S^-1*U')*(instance_a_mean-instance_b_mean)';
+%w=(S_w^(-1))*(instance_a_mean-instance_b_mean)';
+x_mean=((instance_a_mean(1)+instance_b_mean(1))/2);
+y_mean=((instance_a_mean(2)+instance_b_mean(2))/2);
+x=0:5;
+y=(w(1)*(x-x_mean)/w(2))+y_mean;
+new_ax=combined_d*w;
+figure(1);
+plot(instance_b(:,1),instance_b(:,2),'k*',instance_a(:,1),instance_a(:,2),'xr',x,y);
+figure(2);
+histogram(new_ax)
