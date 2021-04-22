@@ -1,0 +1,50 @@
+function [outputArg1,outputArg2] = knn_main(data,parameters)
+%KNN_MAIN 偙偺娭悢偺奣梫傪偙偙偵婰弎
+%   knn does not have to train anymore
+cross_vaild=5;
+
+p_1=0;
+p_2=0;
+p_3=0;
+
+for time_cv=1: cross_vaild
+    
+       x_training=data{time_cv,1}(:,1:end-1);
+       x_label=data{time_cv,1}(:,end);
+       x_testing=data{time_cv,2}(:,1:end-1);
+       test_label=data{time_cv,2}(:,end);
+       num_test_data=length(test_label);
+       predict_labels=zeros(num_test_data,1);
+       for i_iter=1:num_test_data
+           dis_L2=x_training'-x_testing(i_iter,:)';
+           dis_sample=dis_L2.^2;
+           dis_vector=sum(dis_sample,1);%distance from training sample to the test sample
+           [dis_sam,index]=sort(dis_vector);
+           k_label=index(1:parameters.k);
+           result_label=x_label(k_label);
+           p_1=length(find(result_label==1))/parameters.k;%calculate which class has highest prob.
+           p_2=length(find(result_label==2))/parameters.k;
+           p_3=length(find(result_label==3))/parameters.k;
+           result_vector=[p_1,p_2,p_3];
+           [~,index_predict]=max(result_vector);
+           predict_labels(i_iter,1)=index_predict;
+           vote_vector=predict_labels-test_label;
+           
+       end
+            
+            %w=w_para;
+     
+    
+    disp(['validating']);
+    
+    %%check test error
+
+    error_volume=find(vote_vector~=0);
+    error_number=length(error_volume);
+    acc_t=100*(num_test_data-error_number)/num_test_data;
+    disp(['accuracy of test is ',num2str(acc_t)]);
+    
+end
+
+end
+
